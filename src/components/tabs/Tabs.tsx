@@ -23,7 +23,7 @@ export function Tabs(props: Props) {
           {(tab, index) => (
             <li>
               <button
-                class={selectedTab() === index() ? styles.active : ""}
+                classList={{ [styles.active]: selectedTab() === index() }}
                 onClick={createHandleSelectTab(index())}
               >
                 {tab.title}
