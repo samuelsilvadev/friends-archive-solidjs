@@ -1,4 +1,10 @@
-import { JSX, createResource, createSignal } from "solid-js";
+import {
+  ErrorBoundary,
+  JSX,
+  Suspense,
+  createResource,
+  createSignal,
+} from "solid-js";
 import "./App.css";
 import { Episode } from "./types";
 import { EpisodesList } from "./components/episodes-list/EpisodesList";
@@ -22,41 +28,32 @@ function App() {
     setEpisodeName(event.currentTarget.value);
   };
 
-  const renderContent = () => {
-    if (data.loading) {
-      return "Loading";
-    }
-
-    const readableData = data();
-
-    if (data.error || readableData instanceof Error) {
-      return "Error";
-    }
-
-    if (!readableData) {
-      return "Empty";
-    }
-
-    return (
-      <>
-        <h1>{readableData.name}</h1>
+  return (
+    <main>
+      <ErrorBoundary fallback={"Something Went Really Wrong"}>
+        <h1>Friends Archive</h1>
         <input
           class="search"
           type="search"
           value={episodeName()}
           onInput={handleEpisodeNameChange}
+          disabled={data.state === "errored"}
         />
         <Tabs
           tabs={[
             {
               title: "All Episodes",
               content: (
-                <EpisodesList
-                  episodes={filterEpisodes(
-                    readableData._embedded.episodes,
-                    episodeName()
-                  )}
-                />
+                <ErrorBoundary fallback={"Failed to load episodes"}>
+                  <Suspense fallback="Loading...">
+                    <EpisodesList
+                      episodes={filterEpisodes(
+                        data()?._embedded.episodes ?? [],
+                        episodeName()
+                      )}
+                    />
+                  </Suspense>
+                </ErrorBoundary>
               ),
             },
             {
@@ -64,12 +61,10 @@ function App() {
               content: null,
             },
           ]}
-        ></Tabs>
-      </>
-    );
-  };
-
-  return <main>{renderContent()}</main>;
+        />
+      </ErrorBoundary>
+    </main>
+  );
 }
 
 export default App;
