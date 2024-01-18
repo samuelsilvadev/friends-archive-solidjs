@@ -11,9 +11,10 @@ export function EpisodesList(props: Props) {
   return (
     <ul class={styles.list}>
       <For each={props.episodes}>
-        {({ name, image, season, number }) => (
+        {({ name, image, season, number, id }) => (
           <li class={styles.item}>
             <EpisodeCard
+              episodeId={id}
               name={name}
               image={image}
               season={season}
